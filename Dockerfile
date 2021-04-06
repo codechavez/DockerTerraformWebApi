@@ -1,29 +1,23 @@
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:3.1 AS base
 WORKDIR /app
-# If you want specific port
-# EXPOSE 5085
-# ENV ASPNETCORE_URLS=http://+:5085
-ARG compile=__BuildConfiguration__
+EXPOSE 5085
+ENV ASPNETCORE_URLS=http://+:5085
 
-
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
-# If you have more than one project(s)
-# COPY ["<location>/", "<destination>/"]
-COPY ["DockerTerraApiDemo/DockerTerraApiDemo/", "DockerTerraApiDemo/DockerTerraApiDemo/"]
+
+COPY ["DockerTerraApiDemo/DockerTerraApiDemo/", "DockerTerraApiDemo/"]
 COPY ["NuGet.config","NuGet.config"] 
 
-RUN dotnet restore --configfile NuGet.config DockerTerraApiDemo/DockerTerraApiDemo/DockerTerraApiDemo.csproj --force
+RUN dotnet restore --configfile NuGet.config DockerTerraApiDemo/DockerTerraApiDemo.csproj
 
-COPY . .
-
-WORKDIR /src/DockerTerraApiDemo/DockerTerraApiDemo/
-RUN dotnet build DockerTerraApiDemo.csproj -c $compile -o /build
+WORKDIR /src/DockerTerraApiDemo/
+RUN dotnet build DockerTerraApiDemo.csproj -c __BuildConfiguration__ -o /build
 
 FROM build AS publish
-RUN dotnet publish DockerTerraApiDemo.csproj -c $compile -o /app/publish --self-contained true -r linux-x64
+RUN dotnet publish DockerTerraApiDemo.csproj -c __BuildConfiguration__ -o /app/publish --self-contained true -r linux-x64
 
 FROM base as final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "DockerTerraApiDemo.csproj.dll"]
+ENTRYPOINT ["dotnet", "DockerTerraApiDemo.dll"]
