@@ -5,7 +5,6 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
-ARG compiling
 
 COPY ["DockerTerraApiDemo/DockerTerraApiDemo/", "DockerTerraApiDemo/"]
 COPY ["NuGet.config","NuGet.config"] 
@@ -13,10 +12,10 @@ COPY ["NuGet.config","NuGet.config"]
 RUN dotnet restore --configfile NuGet.config DockerTerraApiDemo/DockerTerraApiDemo.csproj
 
 WORKDIR /src/DockerTerraApiDemo/
-RUN dotnet build DockerTerraApiDemo.csproj -c $compiling -o /build
+RUN dotnet build DockerTerraApiDemo.csproj -c __BuildConfiguration__ -o /build
 
 FROM build AS publish
-RUN dotnet publish DockerTerraApiDemo.csproj -c $compiling -o /app/publish --self-contained true -r linux-x64
+RUN dotnet publish DockerTerraApiDemo.csproj -c __BuildConfiguration__ -o /app/publish --self-contained true -r linux-x64
 
 FROM base as final
 WORKDIR /app
