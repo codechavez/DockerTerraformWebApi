@@ -5,7 +5,7 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
-ARG compiling=__BuildConfiguration__
+ARG compiling
 
 COPY ["DockerTerraApiDemo/DockerTerraApiDemo/", "DockerTerraApiDemo/"]
 COPY ["NuGet.config","NuGet.config"] 
